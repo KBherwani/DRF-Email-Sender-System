@@ -1,12 +1,13 @@
 from datetime import datetime
+
 from celery import shared_task
 from django.conf import settings
 from django.core.mail import send_mail
-from django.http import BadHeaderError
 from django.db.models import Q
-
+from django.http import BadHeaderError
 
 from .models import EmailSchedule
+
 
 @shared_task
 def send_scheduled_email(email_schedule_id):
@@ -22,8 +23,8 @@ def send_scheduled_email(email_schedule_id):
     Raises:
     Exception: If an error occurs during the email sending process.
     """
-    
-    schedule = EmailSchedule.objects.get(id = email_schedule_id)
+
+    schedule = EmailSchedule.objects.get(id=email_schedule_id)
     try:
         email_response = email_handler(schedule.user.email)
         if email_response.get("status"):
@@ -35,10 +36,16 @@ def send_scheduled_email(email_schedule_id):
     except Exception as e:
         schedule.email_status = "Failed"
         import traceback
-        return "Unkown error occured while sending email:" + str(e) + str(traceback.print_exc())
-    
+
+        return (
+            "Unkown error occured while sending email:"
+            + str(e)
+            + str(traceback.print_exc())
+        )
+
     finally:
         schedule.save()
+
 
 @shared_task
 def resend_email():
@@ -51,14 +58,17 @@ def resend_email():
     Raises:
         Exception: If an error occurs during the email resending process.
     """
-    
+
     try:
         now = datetime.now()
         current_date = now.date()
         schedule = None
         email_schedules = EmailSchedule.objects.filter(
-            Q(email_status='Failed') |  # Condition 1: Records where status is 'Failed'
-            (Q(scheduled_date__lt=current_date) & (Q(email_status='Failed') | Q(email_status='Pending')))  # Condition 2: Records where date is in past and status is 'Failed' or 'Pending'
+            Q(email_status="Failed")  # Condition 1: Records where status is 'Failed'
+            | (
+                Q(scheduled_date__lt=current_date)
+                & (Q(email_status="Failed") | Q(email_status="Pending"))
+            )  # Condition 2: Records where date is in past and status is 'Failed' or 'Pending'
         )
         for schedule in email_schedules:
             email_response = email_handler(schedule.user.email)
@@ -69,11 +79,12 @@ def resend_email():
                 schedule.email_status = "Failed"
                 return "Email sent failed."
     except Exception as e:
-       return "Failed to resend email:" + str(e)
+        return "Failed to resend email:" + str(e)
     finally:
-       if schedule:
-        schedule.save()
-   
+        if schedule:
+            schedule.save()
+
+
 def email_handler(email):
     """
     Function to handle sending email using Django's send_mail function.
@@ -93,8 +104,8 @@ def email_handler(email):
     try:
         host_email = settings.EMAIL_HOST_USER
         user_email = email
-        mail_subject = 'Email Sender System'
-        mail_content = 'This is a mail send from Email Sender System'
+        mail_subject = "Email Sender System"
+        mail_content = "This is a mail send from Email Sender System"
         send_mail(
             subject=mail_subject,
             message=mail_content,
@@ -102,14 +113,8 @@ def email_handler(email):
             recipient_list=[user_email],
             fail_silently=False,
         )
-        return {"status":True,
-                "message":"Email sent sucessfully"
-                }
+        return {"status": True, "message": "Email sent sucessfully"}
     except BadHeaderError:
-        return {"status":False,
-                "message":"Error while sending email"
-                }
+        return {"status": False, "message": "Error while sending email"}
     except Exception as e:
-        return {"status":False,
-                "message":"Error while sending email"
-        }
+        return {"status": False, "message": "Error while sending email"}

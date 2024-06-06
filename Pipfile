@@ -11,6 +11,8 @@ djangorestframework = "*"
 celery = "*"
 redis = "*"
 django-celery-beat = "*"
+black = "*"
+isort = "*"
 
 [dev-packages]
 

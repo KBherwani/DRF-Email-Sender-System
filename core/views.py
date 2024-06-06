@@ -8,6 +8,7 @@ performing calculations, and rendering templates or returning data in various fo
 from django.shortcuts import render
 from django.views import View
 
+
 class IndexView(View):
     """
     View for Main Landing Page

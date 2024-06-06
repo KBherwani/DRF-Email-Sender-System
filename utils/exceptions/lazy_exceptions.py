@@ -44,7 +44,5 @@ class LazyExceptions:
             from the "utils.exceptions.exception" module.
         """
         return tuple(
-            SimpleLazyObject(
-                lambda: self.get_all_classes("utils.exceptions.exception")
-            )
+            SimpleLazyObject(lambda: self.get_all_classes("utils.exceptions.exception"))
         )

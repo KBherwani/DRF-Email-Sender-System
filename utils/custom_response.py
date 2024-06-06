@@ -70,15 +70,11 @@ class APIResponse:
 
     def success(self) -> Response:
         """This method will create custom response for success event with response status 200."""
-        success_message = (
-            self.message if self.message else self.success_message()
-        )
+        success_message = self.message if self.message else self.success_message()
         response_data = self.struct_response(
             data=self.data, success=True, message=success_message
         )
-        success_status = (
-            self.status_code if self.status_code else status.HTTP_200_OK
-        )
+        success_status = self.status_code if self.status_code else status.HTTP_200_OK
         return Response(response_data, status=success_status)
 
     def fail(self) -> Response:

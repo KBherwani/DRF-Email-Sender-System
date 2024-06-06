@@ -1,8 +1,10 @@
 from datetime import date
-from django.utils import timezone
 
+from django.utils import timezone
 from rest_framework import serializers
+
 from .models import EmailSchedule, User
+
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """
@@ -17,9 +19,10 @@ class UserCreateSerializer(serializers.ModelSerializer):
         validate_phone_number: Check that the phone number is valid.
         validate: Perform additional validation on the entire set of data.
     """
+
     class Meta:
         model = User
-        fields = ['name', 'email', 'phone_number', 'date_of_birth']
+        fields = ["name", "email", "phone_number", "date_of_birth"]
 
     def validate_email(self, value):
         """
@@ -36,16 +39,19 @@ class UserCreateSerializer(serializers.ModelSerializer):
         if not value.isdigit():
             raise serializers.ValidationError("Phone number must contain only digits.")
         if len(value) < 10:
-            raise serializers.ValidationError("Phone number must be at least 10 digits long.")
+            raise serializers.ValidationError(
+                "Phone number must be at least 10 digits long."
+            )
         return value
 
     def validate(self, data):
         """
         Perform additional validation on the entire set of data.
         """
-        if data['date_of_birth'] > date.today():
+        if data["date_of_birth"] > date.today():
             raise serializers.ValidationError("Date of birth cannot be in the future.")
         return data
+
 
 class UserDetailSerializer(serializers.ModelSerializer):
     """
@@ -55,9 +61,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
         model: The User model class.
         fields: The fields to include in the serialized output.
     """
+
     class Meta:
         model = User
-        fields = ['id','name', 'email', 'phone_number', 'date_of_birth']
+        fields = ["id", "name", "email", "phone_number", "date_of_birth"]
+
 
 class EmailScheduleCreateSerializer(serializers.ModelSerializer):
     """
@@ -74,15 +82,17 @@ class EmailScheduleCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EmailSchedule
-        fields = ['user','scheduled_time', 'scheduled_date']
-    
+        fields = ["user", "scheduled_time", "scheduled_date"]
+
     def validate_scheduled_time(self, value):
         """
         Check that the scheduled time is in the future.
         """
-        if self.initial_data['scheduled_date'] == str(timezone.now().date()):
+        if self.initial_data["scheduled_date"] == str(timezone.now().date()):
             if value <= timezone.now().time():
-                raise serializers.ValidationError("The scheduled time must be in the future.")
+                raise serializers.ValidationError(
+                    "The scheduled time must be in the future."
+                )
         return value
 
     def validate_scheduled_date(self, value):
@@ -90,8 +100,11 @@ class EmailScheduleCreateSerializer(serializers.ModelSerializer):
         Check that the scheduled date is in the future.
         """
         if value < timezone.now().date():
-            raise serializers.ValidationError("The scheduled date must be in the future.")
+            raise serializers.ValidationError(
+                "The scheduled date must be in the future."
+            )
         return value
+
 
 class EmailScheduleDetailSerializer(serializers.ModelSerializer):
     """
@@ -103,6 +116,7 @@ class EmailScheduleDetailSerializer(serializers.ModelSerializer):
     """
 
     user = UserDetailSerializer()
+
     class Meta:
         model = EmailSchedule
-        fields = ['id', 'user', 'scheduled_time', 'scheduled_date', 'email_status']        
+        fields = ["id", "user", "scheduled_time", "scheduled_date", "email_status"]

@@ -6,18 +6,26 @@ performing calculations, and rendering templates or returning data in various fo
 """
 
 from datetime import datetime, timedelta
+
 from django.conf import settings
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.db.models import Q
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from user.tasks import send_scheduled_email
 from utils.custom_response import APIResponse
+
 from .models import EmailSchedule, User
-from .serializers import EmailScheduleCreateSerializer, EmailScheduleDetailSerializer, UserCreateSerializer, UserDetailSerializer
+from .serializers import (
+    EmailScheduleCreateSerializer,
+    EmailScheduleDetailSerializer,
+    UserCreateSerializer,
+    UserDetailSerializer,
+)
+
 
 class UserAPIView(APIView):
     """
@@ -87,10 +95,10 @@ class UserAPIView(APIView):
             if serializer.is_valid():
                 serializer.save()
                 return APIResponse(
-                data=serializer.data,
-                status_code=status.HTTP_201_CREATED,
-                message="User created Successfully.",
-            )
+                    data=serializer.data,
+                    status_code=status.HTTP_201_CREATED,
+                    message="User created Successfully.",
+                )
             else:
                 return APIResponse(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -128,7 +136,7 @@ class UserAPIView(APIView):
             user.delete()
             return APIResponse(
                 status_code=status.HTTP_200_OK,
-               message=f"User with id : {pk} deleted successfully.",
+                message=f"User with id : {pk} deleted successfully.",
             )
         except settings.LAZY_EXCEPTIONS as ce:
             return APIResponse(
@@ -144,7 +152,8 @@ class UserAPIView(APIView):
                 for_error=True,
                 message=f"Unknown error occured in deleting user: {ce}",
             )
-        
+
+
 class ScheduleAPIView(APIView):
     """
     API view to handle CRUD operations for email schedules.
@@ -188,15 +197,13 @@ class ScheduleAPIView(APIView):
                 if query_params:
                     email_status = query_params.get("status")
                     date = query_params.get("date")
-                    if email_status and date :
-                        query = Q(email_status = email_status) & Q(scheduled_date = date)
+                    if email_status and date:
+                        query = Q(email_status=email_status) & Q(scheduled_date=date)
                     else:
-                        query = Q(email_status = email_status) | Q(scheduled_date = date)
-                    schedule = EmailSchedule.objects.filter(
-                        query
-                    )
+                        query = Q(email_status=email_status) | Q(scheduled_date=date)
+                    schedule = EmailSchedule.objects.filter(query)
                     serializer = EmailScheduleDetailSerializer(schedule, many=True)
-                else:    
+                else:
                     schedule = EmailSchedule.objects.all()
                     serializer = EmailScheduleDetailSerializer(schedule, many=True)
             return APIResponse(
@@ -236,10 +243,10 @@ class ScheduleAPIView(APIView):
             if serializer.is_valid():
                 serializer.save()
                 return APIResponse(
-                data=serializer.data,
-                status_code=status.HTTP_201_CREATED,
-                message="Email Schedule created Successfully.",
-            )
+                    data=serializer.data,
+                    status_code=status.HTTP_201_CREATED,
+                    message="Email Schedule created Successfully.",
+                )
             else:
                 return APIResponse(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -277,14 +284,14 @@ class ScheduleAPIView(APIView):
             schedule = get_object_or_404(EmailSchedule, pk=pk)
             if schedule.email_status == "Done":
                 return APIResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                for_error=True,
-                message=f"Unknown error occured in creating Email Schedule: Cannot delete schedule that is already done.",
-            )
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    for_error=True,
+                    message=f"Unknown error occured in creating Email Schedule: Cannot delete schedule that is already done.",
+                )
             schedule.delete()
             return APIResponse(
                 status_code=status.HTTP_200_OK,
-               message=f"Email Schedule with id : {pk} deleted successfully.",
+                message=f"Email Schedule with id : {pk} deleted successfully.",
             )
         except settings.LAZY_EXCEPTIONS as ce:
             return APIResponse(
@@ -345,22 +352,20 @@ class SendScheduledEmailAPIView(APIView):
         current_date = now.date()
         current_time = now.time()
 
-        #EMAIL_LIMIT is a variable used to define the span of time within which emails can be sent.
+        # EMAIL_LIMIT is a variable used to define the span of time within which emails can be sent.
         # If EMAIL_LIMIT is set to 1 and the endpoint is triggered at 5:00, it will cover all emails sent between 5:00 and 6:00.
         # If EMAIL_LIMIT is set to 2, it will cover emails sent from 5:00 to 7:00.
         email_limit = int(settings.EMAIL_LIMIT)
         email_limit_time = (now + timedelta(hours=email_limit)).time()
         email_schedules = EmailSchedule.objects.filter(
-            Q(email_status='Failed') | Q(email_status='Pending'),
+            Q(email_status="Failed") | Q(email_status="Pending"),
             scheduled_date=current_date,
             scheduled_time__gte=current_time,  # Including current time
             scheduled_time__lt=email_limit_time,
         )
         for schedule in email_schedules:
-            send_scheduled_email.delay(email_schedule_id = schedule.id)
+            send_scheduled_email.delay(email_schedule_id=schedule.id)
         return APIResponse(
             status_code=status.HTTP_200_OK,
             message=f"Email(s) Triggered",
         )
-
-        

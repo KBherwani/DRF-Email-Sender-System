@@ -11,17 +11,12 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import logging
-from pathlib import Path
-from decouple import config
 import os
+from pathlib import Path
+
+from decouple import config
 
 from utils.exceptions.lazy_exceptions import LazyExceptions
-
-
-
-
-
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,46 +39,46 @@ CORE_TEMPLATES = os.path.join(BASE_DIR, "core/templates")
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_celery_beat',
-    'user',
-    'core',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django_celery_beat",
+    "user",
+    "core",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'email_sender_system.urls'
+ROOT_URLCONF = "email_sender_system.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [USER_TEMPLATES, CORE_TEMPLATES],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [USER_TEMPLATES, CORE_TEMPLATES],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'email_sender_system.wsgi.application'
+WSGI_APPLICATION = "email_sender_system.wsgi.application"
 
 
 # Database
@@ -106,16 +101,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -123,9 +118,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'Asia/Kolkata'
+TIME_ZONE = "Asia/Kolkata"
 
 USE_I18N = True
 
@@ -149,7 +144,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # declare lazy exceptions
 LAZY_EXCEPTIONS = LazyExceptions().lazy_exceptions
@@ -157,12 +152,12 @@ LAZY_EXCEPTIONS = LazyExceptions().lazy_exceptions
 EMAIL_LIMIT = config("EMAIL_LIMIT")
 
 # Email Backend Setting
-EMAIL_BACKEND=config("EMAIL_BACKEND")
-EMAIL_HOST=config("EMAIL_HOST")
-EMAIL_PORT=config("EMAIL_PORT")
-EMAIL_USE_TLS=config("EMAIL_USE_TLS")
-EMAIL_HOST_USER=config("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
+EMAIL_BACKEND = config("EMAIL_BACKEND")
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 
 # Celery Config
 CELERY_BROKER_URL = config("CELERY_BROKER_URL")
@@ -172,7 +167,4 @@ CELERY_TASK_SERIALIZER = config("CELERY_TASK_SERIALIZER")
 CELERY_TIMEZONE = config("CELERY_TIMEZONE")
 
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-SCHEDULER_FOR_RETRY_EMAIL = config(
-    "SCHEDULER_FOR_RETRY_EMAIL"
-)
-
+SCHEDULER_FOR_RETRY_EMAIL = config("SCHEDULER_FOR_RETRY_EMAIL")
